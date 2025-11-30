@@ -4,6 +4,7 @@ import "./App.css";
 import { Counter } from "./components/Counter";
 import { IncrementButton } from "./components/Counter/IncrementButton";
 import { DecrementButton } from "./components/Counter/DecrementButton";
+import { ResetButton } from "./components/Counter/resetButton";
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
           <Counter />
           <DecrementButton />
         </div>
+
+        <ResetButton />
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
