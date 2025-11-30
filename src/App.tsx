@@ -2,6 +2,8 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import { Counter } from "./components/Counter";
+import { IncrementButton } from "./components/Counter/IncrementButton";
+import { DecrementButton } from "./components/Counter/DecrementButton";
 
 function App() {
   return (
@@ -16,7 +18,11 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <Counter />
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <IncrementButton />
+          <Counter />
+          <DecrementButton />
+        </div>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
