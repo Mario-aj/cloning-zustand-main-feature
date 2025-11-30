@@ -21,8 +21,8 @@ export function create<T>(initFunction: (set: SetState<T>, get: () => T) => T) {
 
   state = initFunction(setState, getState);
 
-  const useStore = () => {
-    return useSyncExternalStore(
+  const useStore = <U = T>(selector?: (state: T) => U): U => {
+    return useSyncExternalStore<U>(
       (callback) => {
         listeners.add(callback);
 
@@ -30,8 +30,9 @@ export function create<T>(initFunction: (set: SetState<T>, get: () => T) => T) {
           listeners.delete(callback);
         };
       },
-      () => getState()
-    );
+      () => (selector ? selector(getState()) : getState()) as U,
+      () => (selector ? selector(getState()) : getState()) as U
+    ) as U;
   };
 
   return useStore;
