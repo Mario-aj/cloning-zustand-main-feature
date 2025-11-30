@@ -6,7 +6,7 @@ export type SetState<T> = (
   newState: Partial<T> | ((state: T) => Partial<T>)
 ) => void;
 
-export function create<T>(initFunction: Initializer<T>) {
+function createStoreApi<T>(initFunction: Initializer<T>) {
   let state: T = {} as T;
   const listeners = new Set<VoidFunction>();
 
@@ -21,27 +21,33 @@ export function create<T>(initFunction: Initializer<T>) {
 
   const getState = () => state;
 
-  state = initFunction(setState, getState);
-
-  const useStore = <U = T>(selector?: Selector<T, U>): U => {
-    return useSyncExternalStore<U>(
-      (callback) => {
-        listeners.add(callback);
-
-        return () => {
-          listeners.delete(callback);
-        };
-      },
-      useCallback(
-        () => (selector ? selector(getState()) : getState()) as U,
-        [selector]
-      ),
-      useCallback(
-        () => (selector ? selector(getState()) : getState()) as U,
-        [selector]
-      )
-    ) as U;
+  const subscribe = (callback: VoidFunction) => {
+    listeners.add(callback);
+    return () => {
+      listeners.delete(callback);
+    };
   };
 
-  return useStore;
+  const getSnapshot = <U>(selector: Selector<T, U>) => selector(getState());
+
+  state = initFunction(setState, getState);
+
+  return {
+    setState,
+    getState,
+    subscribe,
+    getSnapshot,
+  };
+}
+
+export function create<T>(initFunction: Initializer<T>) {
+  const storeApi = createStoreApi(initFunction);
+
+  return function useStore<U>(selector: Selector<T, U>) {
+    return useSyncExternalStore(
+      storeApi.subscribe,
+      useCallback(() => storeApi.getSnapshot(selector), [selector]),
+      useCallback(() => storeApi.getSnapshot(selector), [selector])
+    );
+  };
 }
