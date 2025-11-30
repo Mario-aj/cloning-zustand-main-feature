@@ -1,10 +1,10 @@
 import { useSyncExternalStore } from "react";
 
-interface SetState<T> {
-  (newState: Partial<T> | ((state: T) => Partial<T>)): void;
-}
+type Selector<T, U> = (state: T) => U;
+type Initializer<T> = (set: SetState<T>, get: () => T) => T;
+type SetState<T> = (newState: Partial<T> | ((state: T) => Partial<T>)) => void;
 
-export function create<T>(initFunction: (set: SetState<T>, get: () => T) => T) {
+export function create<T>(initFunction: Initializer<T>) {
   let state: T = {} as T;
   const listeners = new Set<VoidFunction>();
 
@@ -21,7 +21,7 @@ export function create<T>(initFunction: (set: SetState<T>, get: () => T) => T) {
 
   state = initFunction(setState, getState);
 
-  const useStore = <U = T>(selector?: (state: T) => U): U => {
+  const useStore = <U = T>(selector?: Selector<T, U>): U => {
     return useSyncExternalStore<U>(
       (callback) => {
         listeners.add(callback);
